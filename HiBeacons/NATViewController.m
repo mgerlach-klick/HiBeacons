@@ -26,8 +26,11 @@
 
 #import "NATViewController.h"
 
-static NSString * const kUUID = @"00000000-0000-0000-0000-000000000000";
+static NSString * kUUID;
 static NSString * const kIdentifier = @"SomeIdentifier";
+static NSUInteger  kMajor;
+static NSUInteger  kMinor;
+
 
 static NSString * const kOperationCellIdentifier = @"OperationCell";
 static NSString * const kBeaconCellIdentifier = @"BeaconCell";
@@ -39,8 +42,8 @@ static NSUInteger const kNumberOfSections = 2;
 static NSUInteger const kNumberOfAvailableOperations = 3;
 static CGFloat const kOperationCellHeight = 44;
 static CGFloat const kBeaconCellHeight = 52;
-static NSString * const kBeaconSectionTitle = @"Looking for beacons...";
-static CGPoint const kActivityIndicatorPosition = (CGPoint){205, 12};
+static NSString *  kBeaconSectionTitle = @"Looking for beacons...";
+static CGPoint const kActivityIndicatorPosition = (CGPoint){270, 20};
 static NSString * const kBeaconsHeaderViewIdentifier = @"BeaconsHeader";
 
 static void * const kMonitoringOperationContext = (void *)&kMonitoringOperationContext;
@@ -71,6 +74,75 @@ typedef NS_ENUM(NSUInteger, NTOperationsRow) {
 @end
 
 @implementation NATViewController
+
+#pragma mark - View Lifecycle
+
+- (void)registerDefaultsFromSettingsBundle
+{
+	NSLog(@"Registering default values from Settings.bundle");
+	NSUserDefaults * defs = [NSUserDefaults standardUserDefaults];
+	[defs synchronize];
+	
+	NSString *settingsBundle = [[NSBundle mainBundle] pathForResource:@"Settings" ofType:@"bundle"];
+	
+	if(!settingsBundle)
+	{
+		NSLog(@"Could not find Settings.bundle");
+		return;
+	}
+	
+	NSDictionary *settings = [NSDictionary dictionaryWithContentsOfFile:[settingsBundle stringByAppendingPathComponent:@"Root.plist"]];
+	NSArray *preferences = [settings objectForKey:@"PreferenceSpecifiers"];
+	NSMutableDictionary *defaultsToRegister = [[NSMutableDictionary alloc] initWithCapacity:[preferences count]];
+	
+	for (NSDictionary *prefSpecification in preferences)
+	{
+		NSString *key = [prefSpecification objectForKey:@"Key"];
+		if (key)
+		{
+			// check if value readable in userDefaults
+			id currentObject = [defs objectForKey:key];
+			if (currentObject == nil)
+			{
+				// not readable: set value from Settings.bundle
+				id objectToSet = [prefSpecification objectForKey:@"DefaultValue"];
+				[defaultsToRegister setObject:objectToSet forKey:key];
+				NSLog(@"Setting object %@ for key %@", objectToSet, key);
+			}
+			else
+			{
+				// already readable: don't touch
+				NSLog(@"Key %@ is readable (value: %@), nothing written to defaults.", key, currentObject);
+			}
+		}
+	}
+	
+	[defs registerDefaults:defaultsToRegister];
+	[defs synchronize];
+}
+
+- (void)loadUserDefaults
+{
+	NSLog(@"Reading userdefaults");
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	kUUID = [defaults objectForKey:@"uuid"];
+	kBeaconSectionTitle = kUUID;
+	kMajor = [[defaults objectForKey:@"major"] integerValue];
+	kMinor = [[defaults objectForKey:@"minor"] integerValue];
+
+	[defaults synchronize];
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+	
+	[self registerDefaultsFromSettingsBundle];
+	[self loadUserDefaults];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+											 selector:@selector(loadUserDefaults)
+												 name:NSUserDefaultsDidChangeNotification
+											   object:nil];
+}
 
 #pragma mark - Index path management
 - (NSArray *)indexPathsOfRemovedBeacons:(NSArray *)beacons
@@ -192,8 +264,8 @@ typedef NS_ENUM(NSUInteger, NTOperationsRow) {
             break;
     }
     
-    NSString *format = @"%@, %@ • %@ • %f • %li";
-    return [NSString stringWithFormat:format, beacon.major, beacon.minor, proximity, beacon.accuracy, beacon.rssi];
+    NSString *format = @"%@ • %f • %li";
+    return [NSString stringWithFormat:format, proximity, beacon.accuracy, beacon.rssi];
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -237,8 +309,9 @@ typedef NS_ENUM(NSUInteger, NTOperationsRow) {
             if (!cell)
                 cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle
                                               reuseIdentifier:kBeaconCellIdentifier];
-            
-            cell.textLabel.text = beacon.proximityUUID.UUIDString;
+			
+			NSString *title = [NSString stringWithFormat:@"%@ • %@", beacon.major, beacon.minor];
+            cell.textLabel.text = title;
             cell.detailTextLabel.text = [self detailsStringForBeacon:beacon];
             cell.detailTextLabel.textColor = [UIColor grayColor];
         }
@@ -575,11 +648,10 @@ typedef NS_ENUM(NSUInteger, NTOperationsRow) {
         return;
     }
     
-    time_t t;
-    srand((unsigned) time(&t));
+
     CLBeaconRegion *region = [[CLBeaconRegion alloc] initWithProximityUUID:self.beaconRegion.proximityUUID
-                                                                     major:rand()
-                                                                     minor:rand()
+                                                                     major:kMajor
+                                                                     minor:kMinor
                                                                 identifier:self.beaconRegion.identifier];
     NSDictionary *beaconPeripheralData = [region peripheralDataWithMeasuredPower:nil];
     [self.peripheralManager startAdvertising:beaconPeripheralData];

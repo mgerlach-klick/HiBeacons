@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5CF34C0918F5909D00358C36 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 5CF34C0818F5909D00358C36 /* Settings.bundle */; };
 		CF2BC92318019D6100C66D15 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CF2BC92218019D6100C66D15 /* Foundation.framework */; };
 		CF2BC92518019D6100C66D15 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CF2BC92418019D6100C66D15 /* CoreGraphics.framework */; };
 		CF2BC92718019D6100C66D15 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CF2BC92618019D6100C66D15 /* UIKit.framework */; };
@@ -36,6 +37,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		5CF34C0818F5909D00358C36 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		CF2BC91F18019D6100C66D15 /* HiBeacons.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HiBeacons.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CF2BC92218019D6100C66D15 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		CF2BC92418019D6100C66D15 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -126,6 +128,7 @@
 				CF2BC9531801A0C700C66D15 /* NATViewController.h */,
 				CF2BC9541801A0C700C66D15 /* NATViewController.m */,
 				CF2BC93418019D6100C66D15 /* Images.xcassets */,
+				5CF34C0818F5909D00358C36 /* Settings.bundle */,
 				CF2BC92918019D6100C66D15 /* Supporting Files */,
 			);
 			path = HiBeacons;
@@ -209,7 +212,7 @@
 				ORGANIZATIONNAME = "Nick Toumpelis";
 				TargetAttributes = {
 					CF2BC91E18019D6100C66D15 = {
-						DevelopmentTeam = P5JZPD83BK;
+						DevelopmentTeam = ETX25FEG97;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
@@ -247,6 +250,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5CF34C0918F5909D00358C36 /* Settings.bundle in Resources */,
 				CF2BC92D18019D6100C66D15 /* InfoPlist.strings in Resources */,
 				CF2BC93518019D6100C66D15 /* Images.xcassets in Resources */,
 				CF2BC9521801A09D00C66D15 /* Main.storyboard in Resources */,
